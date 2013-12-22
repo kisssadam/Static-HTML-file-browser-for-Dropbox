@@ -3,6 +3,9 @@
 # index.html files, because this script generates them
 index.html
 
+# .directory that is created by Dolphin (file browser of KDE)
+*.directory
+
 # C extensions
 *.so
 

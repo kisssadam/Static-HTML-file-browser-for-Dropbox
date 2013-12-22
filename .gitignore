@@ -1,5 +1,8 @@
 *.py[cod]
 
+# index.html files, because this script generates them
+index.html
+
 # C extensions
 *.so
 

@@ -270,10 +270,13 @@ def show_usage():
     sys.stdout.write("Usage of the program:\n")
     sys.stdout.write("python " + sys.argv[0])
     sys.stdout.write(" [-del] [location]\n")
-    sys.stdout.write("\t[-del]\t\tdeletes every index.html files from the [location] directory\n")
-    sys.stdout.write("\t[location]\tthis is the shared directory where index.html files will be generated\n")
+    sys.stdout.write("    [-del]     deletes every index.html files from the [location] directory\n")
+    sys.stdout.write("    [location] this is the shared directory where index.html files will be generated\n\n")
+    sys.stdout.write("python " + sys.argv[0])
+    sys.stdout.write(" [-install]\n")
+    sys.stdout.write("    copies icons folder to a specified directory. See config.py file!\n\n")
     sys.stdout.write("Examples:\n")
-    sys.stdout.write("\tpython " + sys.argv[0] + " ~/Dropbox/Public" "\n")
+    sys.stdout.write("    python " + sys.argv[0] + " ~/Dropbox/Public" "\n")
 
 
 def main():

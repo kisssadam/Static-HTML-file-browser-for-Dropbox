@@ -1,5 +1,9 @@
-Static-HTML-file-browser-for-Dropbox
+Static HTML file browser for Dropbox
 ====================================
+
+Screenshot about output
+------------------
+![screenshot not available](http://kepfeltoltes.hu/131223/screenshot_www.kepfeltoltes.hu_.png)
 
 About the program
 ------------
@@ -24,7 +28,3 @@ The set up takes about 2 minutes if you read the comments in config.py
 3. Start program.py with -install command line argument, and it will copy "icons" directory to a specified directory (this can be set up in the config.py)
 4. Start the program with a location command line argument, that is the path of the Public folder of your Dropbox directory. Example: python program.py ~/Dropbox/Public
 5. Try it out! Share the link of the index.html file which is in the root directory of Dropbox/Public folder. With a webbrowser you can open it or even share it on the internet.
-
-Screenshot about output
-------------------
-![alt tag](http://kepfeltoltes.hu/131223/screenshot_www.kepfeltoltes.hu_.png)

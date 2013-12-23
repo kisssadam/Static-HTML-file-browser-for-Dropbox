@@ -27,4 +27,4 @@ The set up takes about 2 minutes if you read the comments in config.py
 
 Screenshot about output
 ------------------
-![alt tag](![alt tag](http://url/to/img.png)
+![alt tag](http://kepfeltoltes.hu/131223/screenshot_www.kepfeltoltes.hu_.png)

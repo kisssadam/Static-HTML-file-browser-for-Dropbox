@@ -3,7 +3,7 @@ Static HTML file browser for Dropbox
 
 Screenshot about output
 ------------------
-![screenshot not available](http://kepfeltoltes.hu/131223/screenshot_www.kepfeltoltes.hu_.png)
+![screenshot not available](https://raw.github.com/kisssandoradam/Static-HTML-file-browser-for-Dropbox/master/screenshot.png)
 
 About the program
 ------------

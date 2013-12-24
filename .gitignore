@@ -6,6 +6,9 @@ index.html
 # .directory that is created by Dolphin (file browser of KDE)
 *.directory
 
+# other things
+screenshot.png
+
 # C extensions
 *.so
 

@@ -20,16 +20,16 @@ It is designed to look like the output of apache web server.
 
 # do not remove any of the following import lines!
 import os
-import sys
 import re
 import config
 import requests
 import datetime
 import platform
-from utils import sizeof_fmt
+from utils import sizeof_fmt, install, cleanup, fix_location
 from time import gmtime, strftime
 from jinja2 import Environment, FileSystemLoader
 from shutil import copytree, rmtree
+import argparse
 
 # PATH is the location of the shared directory
 PATH = ""
@@ -78,6 +78,7 @@ class Data(object):
             self.size = "-"
             return
 
+        #self.pathtofile = current_directory + "/" + name
         self.pathtofile = current_directory + "/" + name
         # if it's a directory, then...
         if os.path.isdir(self.pathtofile):
@@ -132,7 +133,7 @@ class Data(object):
 
     def __str__(self):
         """Returns the absolute filepath to the file including the filename"""
-        return self.pathtofile
+        return fix_location(self.pathtofile)
 
 
 def get_directory_content(directory):
@@ -158,7 +159,7 @@ def get_directory_content(directory):
 def get_server_info():
     """
     generates the server info text, which is shown
-    shown below the table if SHOW_SERVER_INFO is True
+    below the table if SHOW_SERVER_INFO is True
     """
     
     return "Apache/2.4.7 at dropbox.com Port 80"
@@ -227,143 +228,37 @@ def create_index_html(current_directory = PATH, deep = 0):
         f.write(html)
 
 
-def mark_to_delete(current_directory):
-    """
-    Recursively creates a list with index.html files from the current_directory
-    and returns the entire list. (These files can be deleted)
-    """
-
-    files = [ f for f in os.listdir(current_directory) if not os.path.islink(f) ]
-
-    indexes = []
-    for filename in files:
-        path_to_file = current_directory + "/" + filename
-        # if the current file is a directory, we call the function recursively
-        if os.path.isdir(path_to_file):
-            indexes += mark_to_delete(path_to_file)
-        else:
-            if filename == "index.html":
-                indexes.append(path_to_file)
-
-    return indexes
-
-
-def clear_up(starting_directory=PATH):
-    """
-    This function is called when we run the program with "-del" parameter
-    """
-
-    print "Clearing up index.html files..."
-    marked_to_delete = mark_to_delete(starting_directory)
-
-    if len(marked_to_delete) == 0:
-        print "There is nothing to remove. Exiting..."
-        exit(0)
-
-    print "The following files will be removed:"
-    print "\n".join(marked_to_delete)
-    print "You are going to remove {number} files.".format(number=len(marked_to_delete))
-    
-    # asking user to make sure what he wants to do!
-    answer = raw_input("Are you sure you want to continue? You cannot undo this operation!(yes/no) ")
-    if answer == "yes":
-        for filename in marked_to_delete:
-            os.unlink(filename)
-        os.system("clear")
-        print "You have removed {number} index.html files.".format(number=len(marked_to_delete))
-    else:
-        print "No files were removed!"
-        exit(0)
-
-
-def show_usage():
-    sys.stdout.write("Before the first start you should edit config.py\n")
-    sys.stdout.write("Usage of the program:\n")
-    sys.stdout.write("python " + sys.argv[0])
-    sys.stdout.write(" [-del] [location]\n")
-    sys.stdout.write("    [-del]     deletes every index.html files from the [location] directory\n")
-    sys.stdout.write("    [location] this is the shared directory where index.html files will be generated\n\n")
-    sys.stdout.write("python " + sys.argv[0])
-    sys.stdout.write(" [-install]\n")
-    sys.stdout.write("    copies icons folder to a specified directory. See config.py file!\n\n")
-    sys.stdout.write("Examples:\n")
-    sys.stdout.write("    python " + sys.argv[0] + " ~/Dropbox/Public" "\n")
-
 
 def main():
-    global PATH
     print "Static HTML file browser for Dropbox"
-    if len(sys.argv) != 1:
-        # if the first command line argument is -install, then we copy icons folder to
-        # the given directory, that can be found in config.py (see config.INSTALL_DIR).
-        if sys.argv[1] == "-firstinstall":
-            config.INSTALL_DIR = config.INSTALL_DIR + "/icons"
-            print "Installing..."
-            
-            # before the installation everyone have to set up their own config.py
-            try:
-                answer = raw_input("Did you configured config.py? (yes/no) ")
-            except (EOFError, KeyboardInterrupt):
-                    print   # prints a new line
-                    exit(1) # terminates the program
 
-            if answer != "yes":
-                print "Before running this program, you have to edit config.py with a text editor!"
-                exit(0)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("location",
+                        help="relative or absolute path to your Public dropbox folder")
+    # group is used for mutual exclusion of installing and cleaning up
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-i", "--install",
+                        action="store_true",
+                        help="prepares your Dropbox folder by copying icons to the specified directory.\
+                              This directory can be set up in config.py configuration file")
+    group.add_argument("-clean",
+                        action="store_true",
+                        help="cleans your Dropbox directory by deleting index.html files")
+    parser.add_argument("-v", "--verbose",
+                        action="store_true",
+                        help="verbose output STILL NOT IMPLEMENTED")
+    args = parser.parse_args()
 
-            # if the directory exists, then it will be deleted, and icons will be copied
-            if os.path.isdir(config.INSTALL_DIR):
-                try:
-                    answer = raw_input("Would you like to overwrite the entire " + config.INSTALL_DIR + " directory? (yes/no) ")
-                except (EOFError, KeyboardInterrupt):
-                    print   # prints a new line
-                    exit(1) # terminates the program
-                if answer == "yes":
-                    rmtree(config.INSTALL_DIR)
-                    copytree("icons", config.INSTALL_DIR)
-                else:
-                    print "No change were made on the disk! Exiting..."
-                    exit(0)
-
-            # if everything is okey, then the program copies icons dir to Public folder
-            elif os.path.isdir("icons"):
-                copytree("icons", config.INSTALL_DIR)
-                print "Installation successfully finished! Now check your " + config.INSTALL_DIR + " folder!"
-
-            # can't find the icons folder in the same directory, where the program started
-            else:
-                sys.stderr.write("Cannot find local icons folder!\n")
-                exit(1)
-            exit(0)
-
-        # the program tries to delete every index.html files recursively
-        elif sys.argv[1] == "-del":
-            try:
-                PATH = sys.argv[2]
-            except IndexError:
-                show_usage()
-                exit(1)
-            clear_up(PATH)
-            exit(0)
-        
-        # if the first cmd line argument is a directory, generate index.html files
-        elif os.path.isdir(sys.argv[1]):
-            PATH = sys.argv[1]
-            create_index_html(PATH)
-            print "Total processed files and directories: {n}".format(n=processed_files)
-            print "Total index.html files generated: {n}".format(n=num_of_index_htmls)
-            exit(0)
-
-        # unknown cmd line argument was given
-        else:
-            sys.stderr.write("Unknown command line argument " + sys.argv[1] + "\n")
-            show_usage()
-            exit(1)
-
-    # the program started without any cmd line arguments.
-    else:
-        show_usage()
+    if args.install:
+        install(config.INSTALL_DIR)
+    if args.clean:
+        cleanup(config.INSTALL_DIR)
         exit(0)
+    
+    create_index_html(args.location)
+    print "Total processed files and directories: {n}".format(n=processed_files)
+    print "Total index.html files generated: {n}".format(n=num_of_index_htmls)
+
 
 #############################################################################
 

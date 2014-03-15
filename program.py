@@ -130,6 +130,9 @@ class Data(object):
         else:
             return 1
 
+    def __str__(self):
+        """Returns the absolute filepath to the file including the filename"""
+        return self.pathtofile
 
 
 def get_directory_content(directory):
@@ -175,10 +178,10 @@ def create_index_html(current_directory = PATH, deep = 0):
     # get the names of the files and directories in the current_directory
     files = get_directory_content(current_directory)
 
-    li = [] # collects the files and directories with the required informations
+    filelist = [] # collects the files and directories with the required informations
    
      # the first element in the list should be always the Parent Directory link
-    li.append( Data("Parent Directory", current_directory, deep) )
+    filelist.append( Data("Parent Directory", current_directory, deep) )
 
     # before every recursive call increase this value
     global num_of_index_htmls
@@ -186,22 +189,30 @@ def create_index_html(current_directory = PATH, deep = 0):
     for filename in files:
         path_to_file = current_directory + "/" + filename
         # if the current file is a directory, we call the function recursively
-        if os.path.isdir(path_to_file):
-            num_of_index_htmls += 1
-            create_index_html(path_to_file, deep + 1)
+        try:
+            if os.path.isdir(path_to_file):
+                num_of_index_htmls += 1
+                create_index_html(path_to_file, deep + 1)
+        except OSError:
+            print "WARNING: ACCESS DENIED! " + path_to_file
+            num_of_index_htmls -= 1
+            continue
 
-        li.append( Data(filename, current_directory, deep) )
+        filelist.append( Data(filename, current_directory, deep) )
+
+        # -v or --verbose should be changeable
+        print filelist[-1] # BUG: ha a felhasználó / jelet ad meg a futtatáskor a mappára, akkor // lesz a kimeneten!
 
     # see __cmp__ function of Data class
-    li.sort()
+    filelist.sort()
 
     # increase the processed_files counter by the number of the
     # files and directories in the current directory
     global processed_files
-    processed_files += len(li)-1    
+    processed_files += len(filelist)-1
 
     context = {
-        'datas' : li,
+        'datas' : filelist,
         'SHOW_SERVER_INFO' : config.SHOW_SERVER_INFO,
         'server_info' : get_server_info(),
         'root' : PATH,

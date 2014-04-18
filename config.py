@@ -1,7 +1,8 @@
 # CONFIGURATION FILE of Static HTML file browser for Dropbox
 
 # SET UP INSTALLATION DIRECTORY (this should be absolute path!)
-# this is the shared directory of your Dropbox folder
+# this is the shared directory of your Dropbox folder.
+# Icons will be copied into this folder
 INSTALL_DIR = "/home/adam/Dropbox/Public"
 
 # this is a link to the icons directory

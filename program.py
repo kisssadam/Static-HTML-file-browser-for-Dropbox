@@ -255,7 +255,10 @@ def main():
         cleanup(config.INSTALL_DIR)
         exit(0)
     
-    create_index_html(args.location)
+
+    global PATH
+    PATH = args.location
+    create_index_html(PATH)
     print "Total processed files and directories: {n}".format(n=processed_files)
     print "Total index.html files generated: {n}".format(n=num_of_index_htmls)
 

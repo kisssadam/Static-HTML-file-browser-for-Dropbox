@@ -10,7 +10,7 @@ def sizeof_fmt(num):
         return num
 
     num = float(num)
-    for x in ['bytes','KB','MB','GB','TB',"PB","EX"]:
+    for x in ['bytes','KB','MB','GB','TB','PB','EB','ZB','YB']:
         if num < 1024.0 and x == 'bytes':
             return int(num)
         elif num < 1024.0:

@@ -141,19 +141,19 @@ def get_directory_content(directory):
     Returns a list with files and directories of the current directory.
     """
 
-    content = os.listdir(directory)
+    filelist = list()
 
-    # symbolic links will not be added to the list!
-    if config.SHOW_HIDDEN_ENTRIES and config.HIDE_INDEX_HTML_FILES:
-        files = [ f for f in content if not os.path.islink(f) and f != "index.html" ]
-    elif config.SHOW_HIDDEN_ENTRIES and not config.HIDE_INDEX_HTML_FILES:
-        files = [ f for f in content if not os.path.islink(f) ]
-    elif not config.SHOW_HIDDEN_ENTRIES and not config.HIDE_INDEX_HTML_FILES:
-        files = [ f for f in content if not os.path.islink(f) and f[0] != "."]
-    else:
-        files = [ f for f in content if not os.path.islink(f) and f[0] != "." \
-                    and f != "index.html" ]
-    return files
+    for f in os.listdir(directory):
+        if os.path.islink(f):   # symbolic links will not be added to the list!
+            continue
+        elif config.HIDE_INDEX_HTML_FILES and f == "index.html":
+            continue
+        elif not config.SHOW_HIDDEN_ENTRIES and f[0] == ".":
+            continue
+        else:
+            filelist.append(f)
+
+    return filelist
 
 
 def get_server_info():

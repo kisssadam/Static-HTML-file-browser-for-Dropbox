@@ -128,6 +128,10 @@ def get_context(datas, root, current_directory, relpath):
 def create_index_html(path_to_starting_directory):
     """Creates an index.html file in every directory and subdirectory."""
 
+    number_of_processed_files = 0
+    number_of_processed_dirs = 0
+    number_of_generated_index_htmls = 0
+
     for dirpath, dirnames, filenames in os.walk(path_to_starting_directory):
         if config.HIDE_INDEX_HTML_FILES:
             filenames = [item for item in filenames if not item == "index.html"]
@@ -140,9 +144,11 @@ def create_index_html(path_to_starting_directory):
 
         directories = [Directory(dirname, dirpath) for dirname in dirnames]
         directories.sort()
+        number_of_processed_dirs += len(directories)
 
         files = [File(filename, dirpath) for filename in filenames]
         files.sort()
+        number_of_processed_files += len(files)
 
         context = get_context(datas = parent + directories + files,
                               root = path_to_starting_directory,
@@ -152,6 +158,11 @@ def create_index_html(path_to_starting_directory):
         with open(os.path.join(dirpath, "index.html"), 'w') as f:
             html = render_template('template.html', context)
             f.write(html)
+            number_of_generated_index_htmls += 1
+
+    total_processed_items = number_of_processed_dirs + number_of_processed_files
+    print "Total processed files and directories: {count}".format(count = total_processed_items)
+    print "Total index.html files generated: {count}".format(count = number_of_generated_index_htmls)
 
 
 def main():

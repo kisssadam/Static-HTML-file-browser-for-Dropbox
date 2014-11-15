@@ -2,137 +2,103 @@ import os
 from shutil import copytree, rmtree
 
 
-def sizeof_fmt(num):
-    """
-    Convert file size to human readable format.
-    """
-    if num == "-":
-        return num
+def is_answer_yes(answer):
+    """Returns True if answer is yes, False otherwise"""
 
-    num = float(num)
-    for x in ['bytes','KB','MB','GB','TB','PB','EB','ZB','YB']:
-        if num < 1024.0 and x == 'bytes':
-            return int(num)
-        elif num < 1024.0:
-            return "{0:.2f}&nbsp;{1}".format(num, x)
-        num /= 1024.0
+    answer = answer.lower()
+    return answer == 'yes' or answer == 'y'
 
 
-def fix_location(location):
-    """
-    Returns a location string that doesn't contains multiple
-    "/" characters sequentially.
-    """
-    chars = list(location)
-    fixed_chars = list()
+def ask_yes_no_question(question):
+    """Writes question to stdout and returns True or False depending on the answer"""
 
-    prev_char_is_slash = False
-    for i in xrange(len(location)):
-        if chars[i] == '/' and prev_char_is_slash:
-            continue
-        elif chars[i] == '/' and not prev_char_is_slash:
-            fixed_chars.append(chars[i])
-            prev_char_is_slash = True
-        else:
-            fixed_chars.append(chars[i])
-            prev_char_is_slash = False
-
-    return ''.join(fixed_chars)
-
-
-def install(path):
-    """
-    This function is called, when we run the program with "-i" or "--install"
-    """
-    path += "/icons"
-    print "Installing..."
-    
-    # before the installation everyone have to set up their own config.py
+    result = "no"
     try:
-        answer = raw_input("Did you configured config.py? (yes/no) ")
+        result = raw_input(question + " (yes/no) ")
     except (EOFError, KeyboardInterrupt):
-            print   # prints a new line
-            exit(1) # terminates the program
+        print   # prints a new line
+        exit(1) # terminates the program
+    return result
 
-    if answer != "yes" and \
-       answer != "y" and \
-       answer !="z":
+
+def is_config_already_set_up():
+    """Checks if the user already set up config.py"""
+
+    return is_answer_yes(ask_yes_no_question("Did you configured config.py?"))
+
+
+def install(path_to_public_directory):
+    """
+    This function is called, when we run the program with '-i' or '--install'
+    """
+
+    destination = os.path.join(path_to_public_directory, "icons")
+    
+    # before the installation you have to set up your own config.py configuration
+    if not is_config_already_set_up():
         print "Before running this program, you have to edit config.py with a text editor!"
         exit(0)
 
-    # if the directory exists, then it will be deleted, and icons will be copied
-    if os.path.isdir(path):
-        try:
-            answer = raw_input("Would you like to overwrite the entire " + path + " directory? (yes/no) ")
-        except (EOFError, KeyboardInterrupt):
-            print   # prints a new line
-            exit(1) # terminates the program
-        if answer == "yes" or \
-           answer == "y" or \
-           answer == "z":
-            rmtree(path)
-            copytree("icons", path)
-            print "Installation successfully finished! Now check your " + path + " folder!"
-        else:
-            print "No changes were made on the disk! Exiting..."
-
-    # if directory doesn't exists, then the program copies icons dir to Public folder
-    elif os.path.isdir("icons"):
-        copytree("icons", path)
-        print "Installation successfully finished! Now check your " + path + " folder!"
-
-    # can't find the icons folder in the same directory, where the program started
-    else:
-        sys.stderr.write("Cannot find local icons folder!\n")
+    # checking for resources to be installed
+    # if icons are missing, we have nothing to install
+    if not os.path.isdir("icons"):
+        print "Cannot find local icons folder!"
         exit(1)
 
-
-def mark_to_delete(current_directory):
-    """
-    Recursively creates a list with index.html files from the current_directory
-    and returns the entire list. (These files can be deleted.)
-    This function is used by the cleanup(starting_directory) function.
-    """
-
-    files = [ f for f in os.listdir(current_directory) if not os.path.islink(f) ]
-
-    indexes = []
-    for filename in files:
-        path_to_file = current_directory + "/" + filename
-        # if the current file is a directory, we call the function recursively
-        if os.path.isdir(path_to_file):
-            indexes += mark_to_delete(path_to_file)
+    # if destination directory exists, ask user what to do: overwrite or exit
+    if os.path.isdir(destination):
+        question = "Would you like to overwrite " + destination + " directory?"
+        if is_answer_yes(ask_yes_no_question(question)):
+            print "Removing " + destination
+            rmtree(destination)
         else:
-            if filename == "index.html":
-                indexes.append(path_to_file)
+            print "No changes were made on the disk! Exiting..."
+            return
 
-    return indexes
+    print "Copying resources to " + destination
+    copytree("icons", destination)
+    print "Installation successfully finished! Now check your " + destination + " folder!"
 
 
-def cleanup(starting_directory):
+def mark_to_delete(path_to_starting_directory, file_to_remove):
     """
-    This function is called when we run the program with "-del" parameter
+    Returns a list with path to every file_to_remove file starting from path_to_starting_directory.
     """
 
-    print "Clearing up index.html files..."
-    marked_to_delete = mark_to_delete(starting_directory)
+    files_to_remove = list()
 
-    if len(marked_to_delete) == 0:
-        print "There is nothing to remove. Exiting..."
+    for dirpath, dirnames, filenames in os.walk(path_to_starting_directory):
+        if "index.html" in filenames:
+            files_to_remove.append(os.path.join(dirpath, file_to_remove))
+
+    return files_to_remove
+
+
+# TODO: should remove icons directory too
+def cleanup(path_to_starting_directory):
+    """
+    This function removes the generated index.html files from path_to_starting_directory
+    """
+
+    print "Cleaning up index.html files..."
+    files_to_remove = mark_to_delete(path_to_starting_directory, "index.html")
+
+    number_of_files_to_remove = len(files_to_remove)
+    if number_of_files_to_remove == 0:
+        print path_to_starting_directory + " already cleaned up. There is nothing to remove."
         return
 
     print "The following files will be removed:"
-    print "\n".join(marked_to_delete)
-    print "You are going to remove {number} files.".format(number=len(marked_to_delete))
+    print "\n".join(files_to_remove)
+    print "You are going to remove {count} files.".format(count = number_of_files_to_remove)
     
-    # asking user to make sure what he wants to do!
-    answer = raw_input("Are you sure you want to continue? You cannot undo this operation!(yes/no) ")
-    if answer == "yes":
-        for filename in marked_to_delete:
+    # asking for user confirmation
+    answer = ask_yes_no_question("Are you sure you want to continue? You cannot undo this operation!")
+    if is_answer_yes(answer):
+        for filename in files_to_remove:
             os.unlink(filename)
-        os.system("clear")
-        print "You have removed {number} index.html files.".format(number=len(marked_to_delete))
+        # TODO: should look like this: number_of_removed_files / _number_of_files_to_remove
+        print "You have removed {count} index.html files.".format(count = number_of_files_to_remove)
     else:
         print "No files were removed!"
-        return
 

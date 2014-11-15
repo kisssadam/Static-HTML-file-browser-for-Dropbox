@@ -5,15 +5,17 @@
 # Icons will be copied into this folder
 INSTALL_DIR = "/home/adam/Dropbox/Public"
 
+
 # this is a link to the icons directory
 DROPBOX_LINK_TO_ICONS = "https://dl.dropboxusercontent.com/u/31525733/icons"
 
 
 # here you can change the output of the program
 SHOW_SERVER_INFO = True         # default: True
-SHOW_HIDDEN_ENTRIES = False     # default: False
+HIDE_HIDDEN_ENTRIES = False      # default: True
 HIDE_INDEX_HTML_FILES = True    # default: True
 MONOSPACED_FONTS = True         # default: True
+SERVER_INFO = "Apache/2.4.7 at dropbox.com Port 80"
 
 # if you want to add more icons, you can do it here, but don't forget to
 # add the gif file to the icons directory too.

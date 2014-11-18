@@ -19,7 +19,7 @@ Requirements
 
 Installation
 ------------
-1. Before starting the program, please edit the config.py with your favourite text editor. The setting up takes less than 30 seconds if you read the comments in config.py
+1. Before starting the program, please edit the config.py with your favourite text editor. Setting up takes less than 30 seconds if you read the comments in config.py
 2. Now start program.py with -h or --help command line argument. There will be a short info about it.
     ```python program.py --help```
 3. Use "program.py --install location" command, and it will copy "icons" directory to the specified directory.

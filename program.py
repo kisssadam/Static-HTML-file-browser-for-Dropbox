@@ -185,7 +185,7 @@ def main():
     args = parser.parse_args()
 
     if args.install:
-        utils.install(config.INSTALL_DIR)
+        utils.install(args.location)
         exit(0)
 
     if args.clean:

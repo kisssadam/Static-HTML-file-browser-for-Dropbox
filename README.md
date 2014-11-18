@@ -23,7 +23,7 @@ Installation
 2. Now start program.py with -h or --help command line argument. There will be a short info about it.
     ```python program.py --help```
 3. Use "program.py --install location" command, and it will copy "icons" directory to the specified directory.
-    ```python program.py ~/Dropbox/Public/```
+    ```python program.py --install ~/Dropbox/Public/```
 4. Start the program with a location command line argument, which is the path of the Public folder of your Dropbox directory.
     ```python program.py ~/Dropbox/Public/```
 5. Try it out! Share the link of the index.html file which is in the root directory of Dropbox/Public folder. You can open it with a webbrowser or you can share it on the internet.

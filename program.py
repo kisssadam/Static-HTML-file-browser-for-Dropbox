@@ -52,8 +52,9 @@ def get_icon_name(filename):
         return "folder.gif"
     else:
         for key, value in config.extensions.iteritems():
-            match = re.search(key + "$", filename)
-            # if we know the extension of the file
+            # match = re.search(key + "$", filename)
+            match = re.search(key, filename)
+            # if the file extension is recognised return the correct icon
             if match is not None:
                 return value
 

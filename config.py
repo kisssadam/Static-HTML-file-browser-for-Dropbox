@@ -7,7 +7,7 @@ DROPBOX_LINK_TO_ICONS = "https://dl.dropboxusercontent.com/u/31525733/icons"
 
 # here you can change the output of the program
 SHOW_SERVER_INFO = True         # default: True
-HIDE_HIDDEN_ENTRIES = False      # default: True
+HIDE_HIDDEN_ENTRIES = True      # default: True
 HIDE_INDEX_HTML_FILES = True    # default: True
 MONOSPACED_FONTS = True         # default: True
 SERVER_INFO = "Apache/2.4.7 at dropbox.com Port 80"

@@ -21,7 +21,6 @@ import os
 import re
 import utils
 import config
-import filecmp
 import argparse
 from time import gmtime, strftime
 from jinja2 import Environment, FileSystemLoader

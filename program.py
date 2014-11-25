@@ -21,6 +21,7 @@ import os
 import re
 import utils
 import config
+import filecmp
 import argparse
 from time import gmtime, strftime
 from jinja2 import Environment, FileSystemLoader
@@ -155,11 +156,24 @@ def create_index_html(path_to_starting_directory):
                               root = path_to_starting_directory,
                               current_directory = dirpath,
                               relpath = os.path.relpath(dirpath, path_to_starting_directory))
+        
+        #update if any changes
 
-        with open(os.path.join(dirpath, "index.html"), 'w') as f:
-            html = render_template('template.html', context)
-            f.write(html)
-            number_of_generated_index_htmls += 1
+        html = render_template('template.html', context)
+        file_2 = os.path.join(dirpath, "index.html")
+
+        if os.path.exists(file_2):
+            with open(file_2) as f:
+                r_f = f.read()
+                if not html == r_f:
+                    with open(file_2,"w") as f2:
+                        f2.write(html)
+                        number_of_generated_index_htmls += 1
+        else:
+            with open(file_2,"w") as f2:
+                f2.write(html)
+                number_of_generated_index_htmls += 1
+
 
     total_processed_items = number_of_processed_dirs + number_of_processed_files
     print "Total processed files and directories: {count}".format(count = total_processed_items)
@@ -192,7 +206,7 @@ def main():
     if args.clean:
         utils.cleanup(args.location)
         exit(0)
-
+        
     create_index_html(args.location)
 
 

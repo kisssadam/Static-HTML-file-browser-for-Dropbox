@@ -1,4 +1,5 @@
 import os
+import config
 from shutil import copytree, rmtree
 
 
@@ -73,12 +74,20 @@ def mark_to_delete(path_to_starting_directory, file_to_remove):
 
     return files_to_remove
 
-
-# TODO: should remove icons directory too
 def cleanup(path_to_starting_directory):
     """
     This function removes the generated index.html files from path_to_starting_directory
     """
+
+    #delete icons and icon dir
+    icons_to_delete = os.listdir(config.DROPBOX_ICON_FOLDER)
+
+    for e in icons_to_delete:
+        os.unlink(os.path.join(config.DROPBOX_ICON_FOLDER, e))
+
+    os.rmdir(config.DROPBOX_ICON_FOLDER)
+
+    print "Icons dir removed!"
 
     print "Cleaning up index.html files..."
     files_to_remove = mark_to_delete(path_to_starting_directory, "index.html")
@@ -101,4 +110,3 @@ def cleanup(path_to_starting_directory):
         print "You have removed {count} index.html files.".format(count = number_of_files_to_remove)
     else:
         print "No files were removed!"
-

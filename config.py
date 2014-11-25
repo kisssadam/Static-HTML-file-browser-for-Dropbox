@@ -1,7 +1,5 @@
 # CONFIGURATION FILE of Static HTML file browser for Dropbox
 
-import os
-
 # this is a link to the icons directory
 DROPBOX_LINK_TO_ICONS = "https://dl.dropboxusercontent.com/u/31525733/icons"
 
@@ -14,7 +12,7 @@ MONOSPACED_FONTS = True         # default: True
 SERVER_INFO = "Apache/2.4.7 at dropbox.com Port 80"
 
 #icons folder in your dropbox
-DROPBOX_ICON_FOLDER = "/home/"+os.getenv('USER')+"/Dropbox/icons/"
+DROPBOX_ICON_FOLDER = "/home/icsaba/Dropbox/icons/"
 
 
 # if you want to add more icons, you can do it here, but don't forget to

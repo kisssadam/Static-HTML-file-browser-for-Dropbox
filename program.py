@@ -134,6 +134,9 @@ def create_index_html(path_to_starting_directory):
     number_of_generated_index_htmls = 0
 
     for dirpath, dirnames, filenames in os.walk(path_to_starting_directory):
+        if config.HIDE_HIDDEN_ENTRIES and os.path.basename(dirpath).startswith("."):
+            continue
+
         if config.HIDE_INDEX_HTML_FILES:
             filenames = [item for item in filenames if not item == "index.html"]
         

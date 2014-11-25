@@ -134,13 +134,16 @@ def create_index_html(path_to_starting_directory):
     number_of_generated_index_htmls = 0
 
     for dirpath, dirnames, filenames in os.walk(path_to_starting_directory):
+        if config.HIDE_HIDDEN_ENTRIES and os.path.basename(dirpath).startswith("."):
+            continue
+        
         if config.HIDE_INDEX_HTML_FILES:
             filenames = [item for item in filenames if not item == "index.html"]
         
         if config.HIDE_HIDDEN_ENTRIES:
             dirnames = [dirname for dirname in dirnames if not dirname.startswith(".")]
             filenames = [filename for filename in filenames if not filename.startswith(".")]
-
+        print dirnames
         parent = [Data("Parent Directory", "../")]
 
         directories = [Directory(dirname, dirpath) for dirname in dirnames]

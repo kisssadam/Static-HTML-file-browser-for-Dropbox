@@ -32,3 +32,4 @@ Contributors
 ----------------
 
 [Jabba Laci](https://github.com/jabbalaci)
+[Iváncza Csaba](https://github.com/icsaba)

@@ -79,16 +79,15 @@ def cleanup(path_to_starting_directory):
     This function removes the generated index.html files from path_to_starting_directory
     """
 
-    #get icons to delete
-    icons_to_delete = os.listdir(config.DROPBOX_ICON_FOLDER)
-    icons_to_delete = [e for e in icons_to_delete if e != "index.html"]
-
-    print "Cleaning up index.html files..."
+    print "Cleaning up index.html and icon files..."
     files_to_remove = mark_to_delete(path_to_starting_directory, "index.html")
 
-    print "Cleaning up icons..."
-    for e in icons_to_delete:
-        files_to_remove.append(os.path.join(config.DROPBOX_ICON_FOLDER, e))
+    # get icons to delete
+    if os.path.exists(config.DROPBOX_ICON_FOLDER):
+        icons_to_delete = os.listdir(config.DROPBOX_ICON_FOLDER)
+        icons_to_delete = [e for e in icons_to_delete if e != "index.html"]
+        for e in icons_to_delete:
+            files_to_remove.append(os.path.join(config.DROPBOX_ICON_FOLDER, e))
 
     number_of_files_to_remove = len(files_to_remove)
     if number_of_files_to_remove == 0:
@@ -105,11 +104,13 @@ def cleanup(path_to_starting_directory):
         for filename in files_to_remove:
             os.unlink(filename)
         
-        #remove icon's folder
-        os.rmdir(config.DROPBOX_ICON_FOLDER)
+        # remove icon's folder
+        if os.path.exists(config.DROPBOX_ICON_FOLDER):
+            print "Removing " + config.DROPBOX_ICON_FOLDER
+            os.rmdir(config.DROPBOX_ICON_FOLDER)
+            print "Icon folder has been removed."
 
         # TODO: should look like this: number_of_removed_files / _number_of_files_to_remove
-        print "You have removed {count} files (icons and index.html-s).".format(count = number_of_files_to_remove)
-        print "Icon's fodler has been removed"
+        print "You have removed {count} files.".format(count = number_of_files_to_remove)
     else:
         print "No files were removed!"

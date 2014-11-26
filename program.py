@@ -144,6 +144,8 @@ def create_index_html(path_to_starting_directory):
             dirnames = [dirname for dirname in dirnames if not dirname.startswith(".")]
             filenames = [filename for filename in filenames if not filename.startswith(".")]
 
+        dirnames = [dirname for dirname in dirnames if not dirname == "icons"]
+
         parent = [Data("Parent Directory", "../")]
 
         directories = [Directory(dirname, dirpath) for dirname in dirnames]
@@ -158,24 +160,22 @@ def create_index_html(path_to_starting_directory):
                               root = path_to_starting_directory,
                               current_directory = dirpath,
                               relpath = os.path.relpath(dirpath, path_to_starting_directory))
-        
-        #update if any changes
 
         html = render_template('template.html', context)
+
         file_2 = os.path.join(dirpath, "index.html")
 
         if os.path.exists(file_2):
             with open(file_2) as f:
                 r_f = f.read()
                 if not html == r_f:
-                    with open(file_2,"w") as f2:
+                    with open(file_2, "w") as f2:
                         f2.write(html)
                         number_of_generated_index_htmls += 1
         else:
-            with open(file_2,"w") as f2:
+            with open(file_2, "w") as f2:
                 f2.write(html)
                 number_of_generated_index_htmls += 1
-
 
     total_processed_items = number_of_processed_dirs + number_of_processed_files
     print "Total processed files and directories: {count}".format(count = total_processed_items)

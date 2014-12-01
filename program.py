@@ -51,12 +51,11 @@ def get_icon_name(filename):
     elif os.path.isdir(filename):
         return "folder.gif"
     else:
-        for key, value in config.extensions.iteritems():
-            # match = re.search(key + "$", filename)
-            match = re.search(key, filename)
+        for extension, icon in config.extensions.iteritems():
             # if the file extension is recognised return the correct icon
-            if match is not None:
-                return value
+            match = re.search(extension + "$", filename)
+            if match:
+                return icon
 
     # unknown filename extension
     return "unknown.gif"

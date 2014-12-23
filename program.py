@@ -21,6 +21,7 @@ import os
 import re
 import utils
 import config
+import posixpath
 import argparse
 from time import gmtime, strftime
 from jinja2 import Environment, FileSystemLoader
@@ -96,7 +97,7 @@ class Directory(Data):
         super(Directory, self).__init__(dirname, dirpath)
         self.size = "-"
         relpath = os.path.relpath(dirpath, dirpath)
-        self.url = os.path.join(os.path.join(relpath, dirname), "index.html")
+        self.url = posixpath.join(relpath, dirname, "index.html")
 
 
 class File(Data):
@@ -160,20 +161,20 @@ def create_index_html(path_to_starting_directory):
                               current_directory = dirpath,
                               relpath = os.path.relpath(dirpath, path_to_starting_directory))
 
-        html = render_template('template.html', context)
+        rendered_template = render_template('template.html', context)
 
-        file_2 = os.path.join(dirpath, "index.html")
+        index_html = os.path.join(dirpath, "index.html")
 
-        if os.path.exists(file_2):
-            with open(file_2) as f:
-                r_f = f.read()
-                if not html == r_f:
-                    with open(file_2, "w") as f2:
-                        f2.write(html)
+        if os.path.exists(index_html):
+            with open(index_html) as existing_file:
+                content_of_existing_file = existing_file.read()
+                if not rendered_template == content_of_existing_file:
+                    with open(index_html, "w") as f:
+                        f.write(rendered_template)
                         number_of_generated_index_htmls += 1
         else:
-            with open(file_2, "w") as f2:
-                f2.write(html)
+            with open(index_html, "w") as f:
+                f.write(rendered_template)
                 number_of_generated_index_htmls += 1
 
     total_processed_items = number_of_processed_dirs + number_of_processed_files
@@ -201,13 +202,13 @@ def main():
     args = parser.parse_args()
 
     if args.install:
-        utils.install(args.location)
+        utils.install(config.DROPBOX_ICON_FOLDER)
         exit(0)
 
     if args.clean:
         utils.cleanup(args.location)
         exit(0)
-        
+
     create_index_html(args.location)
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # encoding: utf-8
 
 # programmed by: Kiss Sándor Ádám
@@ -21,7 +21,6 @@ import os
 import re
 import utils
 import config
-import posixpath
 import argparse
 from time import gmtime, strftime
 from jinja2 import Environment, FileSystemLoader
@@ -30,6 +29,29 @@ from jinja2 import Environment, FileSystemLoader
 TEMPLATE_ENVIRONMENT = Environment(autoescape=False,
                                    loader=FileSystemLoader('templates'),
                                    trim_blocks=False)
+
+def create_ipynb_link(filename):
+    link = 'http://nbviewer.ipython.org/urls/'
+    if config.DROPBOX_BASE_URL.startswith('https://'):
+        link = link + config.DROPBOX_BASE_URL[8:]
+    elif config.DROPBOX_BASE_URL.startswith('http://'):
+        link = link + config.DROPBOX_BASE_URL[7:]
+    findex = filename.find('Public')
+    link = link + filename[findex+6:]
+    return link
+
+
+def get_open_url(filename):
+    link = []
+    if os.path.isfile(filename):
+        ext = os.path.splitext(filename)[1]
+        if ext == '.ipynb' :
+            link.append(create_ipynb_link(filename))
+            link.append('nbview')
+    else:
+        link.append('')
+        link.append('')
+    return link
 
 
 def sizeof_fmt(filesize_in_bytes):
@@ -67,18 +89,20 @@ class Data(object):
 
     def __init__(self, name, dirpath):
         self.name = name
-        self.dirpath = dirpath      
+        self.dirpath = dirpath
         try:
             self.abspath = os.path.join(self.dirpath, self.name)
             self.date = strftime("%Y-%m-%d&nbsp;%H:%M", gmtime(60 * 60 + os.path.getmtime(self.abspath)))
             self.icon = get_icon_name(self.abspath)
+            self.open = get_open_url(self.abspath)
         except OSError:
             self.abspath = dirpath
             self.date = ""
             self.size = "-"
             self.url = "../index.html"
             self.icon = get_icon_name(self.url)
-    
+            self.open = get_open_url(self.abspath)
+
 
     def __cmp__(self, other):
         """Compares instances by their names."""
@@ -97,7 +121,7 @@ class Directory(Data):
         super(Directory, self).__init__(dirname, dirpath)
         self.size = "-"
         relpath = os.path.relpath(dirpath, dirpath)
-        self.url = posixpath.join(relpath, dirname, "index.html")
+        self.url = os.path.join(os.path.join(relpath, dirname), "index.html")
 
 
 class File(Data):
@@ -139,7 +163,7 @@ def create_index_html(path_to_starting_directory):
 
         if config.HIDE_INDEX_HTML_FILES:
             filenames = [item for item in filenames if not item == "index.html"]
-        
+
         if config.HIDE_HIDDEN_ENTRIES:
             dirnames = [dirname for dirname in dirnames if not dirname.startswith(".")]
             filenames = [filename for filename in filenames if not filename.startswith(".")]
@@ -161,20 +185,20 @@ def create_index_html(path_to_starting_directory):
                               current_directory = dirpath,
                               relpath = os.path.relpath(dirpath, path_to_starting_directory))
 
-        rendered_template = render_template('template.html', context)
+        html = render_template('template.html', context)
 
-        index_html = os.path.join(dirpath, "index.html")
+        file_2 = os.path.join(dirpath, "index.html")
 
-        if os.path.exists(index_html):
-            with open(index_html) as existing_file:
-                content_of_existing_file = existing_file.read()
-                if not rendered_template == content_of_existing_file:
-                    with open(index_html, "w") as f:
-                        f.write(rendered_template)
+        if os.path.exists(file_2):
+            with open(file_2) as f:
+                r_f = f.read()
+                if not html == r_f:
+                    with open(file_2, "w") as f2:
+                        f2.write(html)
                         number_of_generated_index_htmls += 1
         else:
-            with open(index_html, "w") as f:
-                f.write(rendered_template)
+            with open(file_2, "w") as f2:
+                f2.write(html)
                 number_of_generated_index_htmls += 1
 
     total_processed_items = number_of_processed_dirs + number_of_processed_files
@@ -186,10 +210,10 @@ def main():
     print "Static HTML file browser for Dropbox"
 
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument("location",
                         help="path to the Public folder of your Dropbox folder.")
-    
+
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-i", "--install",
                        action="store_true",
@@ -198,11 +222,11 @@ def main():
     group.add_argument("--clean",
                        action="store_true",
                        help="cleans your Dropbox directory by deleting index.html files.")
-    
+
     args = parser.parse_args()
 
     if args.install:
-        utils.install(config.DROPBOX_ICON_FOLDER)
+        utils.install(args.location)
         exit(0)
 
     if args.clean:

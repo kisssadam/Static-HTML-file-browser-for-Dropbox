@@ -34,7 +34,7 @@ def install(path_to_public_directory):
     """
 
     destination = os.path.join(path_to_public_directory, "icons")
-    
+
     # before the installation you have to set up your own config.py configuration
     if not is_config_already_set_up():
         print "Before running this program, you have to edit config.py with a text editor!"
@@ -97,13 +97,13 @@ def cleanup(path_to_starting_directory):
     print "The following files will be removed:"
     print "\n".join(files_to_remove)
     print "You are going to remove {count} files.".format(count = number_of_files_to_remove)
-    
+
     # asking for user confirmation
     answer = ask_yes_no_question("Are you sure you want to continue? You cannot undo this operation!")
     if is_answer_yes(answer):
         for filename in files_to_remove:
             os.unlink(filename)
-        
+
         # remove icon's folder
         if os.path.exists(config.DROPBOX_ICON_FOLDER):
             print "Removing " + config.DROPBOX_ICON_FOLDER

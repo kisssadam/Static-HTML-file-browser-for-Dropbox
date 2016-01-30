@@ -18,6 +18,12 @@
         .size {
             width: 100px;
         }
+        .open {
+            width: 170px;
+        }
+        .description {
+            width: 170px;
+        }
         #top_hr {
             margin-top: 0px;
         }
@@ -40,9 +46,9 @@
         }
         body{
             color : black;
-            background-color : white;
+            background-color : #eaf1fd;
         }
-    </style> 
+    </style>
 </head>
 <body>
     <h1>
@@ -54,6 +60,7 @@
                 <td class="name">Name</td>
                 <td class="date">Last modified</td>
                 <td class="size">Size</td>
+                <td class="open">Open</td>
                 <td class="description">Description</td>
             </tr>
     </table>
@@ -68,6 +75,13 @@
                             <td class="name"><a href="{{ item.url }}">{{ item.name }}</a></td>
                             <td class="date">{{ item.date }}</td>
                             <td class="size">{{ item.size }}</td>
+                            <td class="open">
+                                {% if item.open[0] %}
+                                    [&nbsp;<a href="{{ item.open[0] }}">{{ item.open[1] }}</a>&nbsp;]
+                                {% else %}
+                                    &nbsp;
+                                {% endif %}
+                            </td>
                             <td class="description"></td>
                         </tr>
                     {% endif %}
@@ -80,6 +94,13 @@
                         <td class="name"><a href="{{ item.url }}">{{ item.name }}</a></td>
                         <td class="date">{{ item.date }}</td>
                         <td class="size">{{ item.size }}</td>
+                        <td class="open">
+                            {% if item.open[0] %}
+                                [&nbsp;<a href="{{ item.open[0] }}">{{ item.open[1] }}</a>&nbsp;]
+                            {% else %}
+                                &nbsp;
+                            {% endif %}
+                        </td>
                         <td class="description"></td>
                     </tr>
                     {% set counter = counter + 1 -%}

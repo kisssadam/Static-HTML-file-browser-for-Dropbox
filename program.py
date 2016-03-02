@@ -22,6 +22,7 @@ import re
 import utils
 import config
 import argparse
+from unipath import Path
 from time import gmtime, strftime
 from jinja2 import Environment, FileSystemLoader
 
@@ -30,19 +31,24 @@ TEMPLATE_ENVIRONMENT = Environment(autoescape=False,
                                    loader=FileSystemLoader('templates'),
                                    trim_blocks=False)
 
+
 def create_ipynb_link(filename):
     link = 'http://nbviewer.ipython.org/urls/'
+    
     if config.DROPBOX_BASE_URL.startswith('https://'):
         link = link + config.DROPBOX_BASE_URL[8:]
     elif config.DROPBOX_BASE_URL.startswith('http://'):
         link = link + config.DROPBOX_BASE_URL[7:]
+    
     findex = filename.find('Public')
     link = link + filename[findex+6:]
+    
     return link
 
 
 def get_open_url(filename):
     link = []
+    
     if os.path.isfile(filename):
         ext = os.path.splitext(filename)[1]
         if ext == '.ipynb' :
@@ -51,6 +57,7 @@ def get_open_url(filename):
     else:
         link.append('')
         link.append('')
+    
     return link
 
 
@@ -84,55 +91,6 @@ def get_icon_name(filename):
     return "unknown.gif"
 
 
-class Data(object):
-    """Represents a file or a directory."""
-
-    def __init__(self, name, dirpath):
-        self.name = name
-        self.dirpath = dirpath
-        try:
-            self.abspath = os.path.join(self.dirpath, self.name)
-            self.date = strftime("%Y-%m-%d&nbsp;%H:%M", gmtime(60 * 60 + os.path.getmtime(self.abspath)))
-            self.icon = get_icon_name(self.abspath)
-            self.open = get_open_url(self.abspath)
-        except OSError:
-            self.abspath = dirpath
-            self.date = ""
-            self.size = "-"
-            self.url = "../index.html"
-            self.icon = get_icon_name(self.url)
-            self.open = get_open_url(self.abspath)
-
-
-    def __cmp__(self, other):
-        """Compares instances by their names."""
-        return cmp(self.name, other.name)
-
-
-    def __str__(self):
-        """Returns the absolute path of the file or directory."""
-        return self.abspath
-
-
-class Directory(Data):
-    """Represents a parsed directory."""
-
-    def __init__(self, dirname, dirpath):
-        super(Directory, self).__init__(dirname, dirpath)
-        self.size = "-"
-        relpath = os.path.relpath(dirpath, dirpath)
-        self.url = os.path.join(os.path.join(relpath, dirname), "index.html")
-
-
-class File(Data):
-    """Represents a parsed file."""
-
-    def __init__(self, filename, dirpath):
-        super(File, self).__init__(filename, dirpath)
-        self.size = sizeof_fmt(os.path.getsize(self.abspath))
-        self.url = filename
-
-
 def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
 
@@ -150,60 +108,119 @@ def get_context(datas, root, current_directory, relpath):
     }
 
 
-def create_index_html(path_to_starting_directory):
+def create_index_html(root):
     """Creates an index.html file in every directory and subdirectory."""
 
-    number_of_processed_files = 0
-    number_of_processed_dirs = 0
-    number_of_generated_index_htmls = 0
+    total_processed_files = 0
+    total_processed_dirs = 0
+    total_generated_index_htmls = 0
 
-    for dirpath, dirnames, filenames in os.walk(path_to_starting_directory):
+    for dirpath, dirnames, filenames in os.walk(root):
         if config.HIDE_HIDDEN_ENTRIES and os.path.basename(dirpath).startswith("."):
-            continue
+                continue
+        filter_names(dirnames, filenames)
 
-        if config.HIDE_INDEX_HTML_FILES:
-            filenames = [item for item in filenames if not item == "index.html"]
-
-        if config.HIDE_HIDDEN_ENTRIES:
-            dirnames = [dirname for dirname in dirnames if not dirname.startswith(".")]
-            filenames = [filename for filename in filenames if not filename.startswith(".")]
-
-        dirnames = [dirname for dirname in dirnames if not dirname == "icons"]
-
-        parent = [Data("Parent Directory", "../")]
-
-        directories = [Directory(dirname, dirpath) for dirname in dirnames]
-        directories.sort()
-        number_of_processed_dirs += len(directories)
-
-        files = [File(filename, dirpath) for filename in filenames]
-        files.sort()
-        number_of_processed_files += len(files)
-
-        context = get_context(datas = parent + directories + files,
-                              root = path_to_starting_directory,
+        dirs = get_entries(dirpath, dirnames)
+        files = get_entries(dirpath, filenames)
+        
+        context = get_context(datas = dirs + files,
+                              root = root,
                               current_directory = dirpath,
-                              relpath = os.path.relpath(dirpath, path_to_starting_directory))
+                              relpath = os.path.relpath(dirpath, root))
 
-        html = render_template('template.html', context)
+        rendered_template = render_template('template.html', context)
+        index_html = os.path.join(dirpath, "index.html")
+        
+        try:
+            if file_differs_from_content(filename = index_html, content = rendered_template):
+                write_to_disk(rendered_template, index_html)
+                total_generated_index_htmls += 1
+        except IOError as error:
+            print error
 
-        file_2 = os.path.join(dirpath, "index.html")
+        total_processed_dirs += len(dirs)
+        total_processed_files += len(files)
 
-        if os.path.exists(file_2):
-            with open(file_2) as f:
-                r_f = f.read()
-                if not html == r_f:
-                    with open(file_2, "w") as f2:
-                        f2.write(html)
-                        number_of_generated_index_htmls += 1
-        else:
-            with open(file_2, "w") as f2:
-                f2.write(html)
-                number_of_generated_index_htmls += 1
-
-    total_processed_items = number_of_processed_dirs + number_of_processed_files
+    total_processed_items = total_processed_dirs + total_processed_files
     print "Total processed files and directories: {count}".format(count = total_processed_items)
-    print "Total index.html files generated: {count}".format(count = number_of_generated_index_htmls)
+    print "Total index.html files generated: {count}".format(count = total_generated_index_htmls)
+
+
+def filter_names(dirnames, filenames):
+    if config.HIDE_INDEX_HTML_FILES and "index.html" in filenames:
+        filenames.remove("index.html")
+    
+    if config.HIDE_ICONS_FOLDER:
+        filter_icons_dir(dirnames)
+
+    if config.HIDE_HIDDEN_ENTRIES:
+        filter_hiddens(dirnames)
+        filter_hiddens(filenames)
+
+
+def filter_icons_dir(dirnames):
+    if "icons" in dirnames:
+        dirnames.remove("icons")
+
+
+def filter_hiddens(names):
+    for name in names:
+        if name.startswith("."):
+            names.remove(name)
+
+
+def get_entries(dirpath, names):
+    paths = []
+    
+    for name in names:
+        paths.append(get_entry(Path(dirpath, name)))
+    
+    paths.sort()
+    
+    return paths
+
+
+def get_entry(path):
+    assert type(path) == Path, "path is not a Path object"
+
+    name = path.name
+    date = strftime("%Y-%m-%d&nbsp;%H:%M", gmtime(60 * 60 + path.mtime()))
+    size = sizeof_fmt(path.size())
+    icon = get_icon_name(path)
+    open_url = get_open_url(os.path.abspath(path))
+    
+    if path.isdir():
+        url = os.path.join(name, "index.html")
+    else:
+        url = name
+
+    return Entry(name, date, size, icon, url, open_url)
+
+
+class Entry():
+    def __init__(self, name, date, size, icon, url, open_url):
+        self.name = name
+        self.date = date
+        self.size = size
+        self.icon = icon
+        self.url = url
+        self.open_url = open_url
+
+
+def file_differs_from_content(filename, content):
+    is_different = True
+    
+    if os.path.exists(filename):
+        with open(filename) as f:
+            if f.read().strip() == content.strip():
+                is_different = False
+    
+    return is_different
+
+
+def write_to_disk(template, destination):
+    with open(destination, "w") as f:
+        f.write(template)
 
 
 def main():

@@ -1,93 +1,82 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8"/>
-    <title>
-        Index of /{{ index_of }}
-    </title>
-    <style>
-        .icon {
-            width: 23px;
-        }
-        .name {
-            width: 500px;
-        }
-        .date {
-            width: 170px;
-        }
-        .size {
-            width: 100px;
-        }
-        .open {
-            width: 170px;
-        }
-        .description {
-            width: 170px;
-        }
-        #top_hr {
-            margin-top: 0px;
-        }
-        h1 {
-            font-family: 'Times New Roman';
-            font-weight: bold;
-        }
-        table {
-            font-family : {{ font }};
-            border-collapse: collapse;
-        }
-        td {
-            padding-top: 0px;
-            padding-bottom: 0px;
-        }
-        h1 {
-            display: block;
-            font-size: 32px;
-            font-weight: bold;
-        }
-        body{
-            color : black;
-            background-color : #eaf1fd;
-        }
-    </style>
-</head>
-<body>
-    <h1>
-        Index of /{{ index_of }}
-    </h1>
-    <table>
-            <tr>
-                <td class="icon"><img src="{{ link_to_icons }}/blank.gif"></td>
-                <td class="name">Name</td>
-                <td class="date">Last modified</td>
-                <td class="size">Size</td>
-                <td class="open">Open</td>
-                <td class="description">Description</td>
-            </tr>
-    </table>
-    <hr id="top_hr">
-    <table>
-        <tbody>
-            {% if current_directory == root %}
-                {% for item in datas -%}
-                    {% if loop.index != 1 %}
-                        <tr>
-                            <td class="icon"><img src="{{ link_to_icons }}/{{ item.icon }}"></td>
-                            <td class="name"><a href="{{ item.url }}">{{ item.name }}</a></td>
-                            <td class="date">{{ item.date }}</td>
-                            <td class="size">{{ item.size }}</td>
-                            <td class="open">
-                                {% if item.open[0] %}
-                                    [&nbsp;<a href="{{ item.open[0] }}">{{ item.open[1] }}</a>&nbsp;]
-                                {% else %}
-                                    &nbsp;
-                                {% endif %}
-                            </td>
-                            <td class="description"></td>
-                        </tr>
-                    {% endif %}
-                {% endfor -%}
-            {% else %}
-                {% set counter = 0 -%}
+    <head>
+        <meta charset="utf-8"/>
+        <title>
+            Index of /{{ index_of }}
+        </title>
+        <style>
+            .icon {
+                width: 23px;
+            }
+            .name {
+                width: 500px;
+            }
+            .date {
+                width: 170px;
+            }
+            .size {
+                width: 100px;
+            }
+            .open {
+                width: 170px;
+            }
+            .description {
+                width: 170px;
+            }
+            #top_hr {
+                margin-top: 0px;
+            }
+            h1 {
+                font-family: 'Times New Roman';
+                font-weight: bold;
+            }
+            table {
+                font-family : {{ font }};
+                border-collapse: collapse;
+            }
+            td {
+                padding-top: 0px;
+                padding-bottom: 0px;
+            }
+            h1 {
+                display: block;
+                font-size: 32px;
+                font-weight: bold;
+            }
+            body{
+                color : black;
+                background-color : #eaf1fd;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            Index of /{{ index_of }}
+        </h1>
+        <table>
+                <tr>
+                    <td class="icon"><img src="{{ link_to_icons }}/blank.gif"></td>
+                    <td class="name">Name</td>
+                    <td class="date">Last modified</td>
+                    <td class="size">Size</td>
+                    <td class="open">Open</td>
+                    <td class="description">Description</td>
+                </tr>
+        </table>
+        <hr id="top_hr" />
+        <table>
+            <tbody>
+                {% if current_directory != root %}
+                    <tr>
+                        <td class="icon"><img src="{{ link_to_icons }}/back.gif"></td>
+                        <td class="name"><a href="../index.html">Parent Directory</a></td>
+                        <td class="date" />
+                        <td class="size">-</td>
+                        <td class="open" />
+                        <td class="description" />
+                    </tr>
+                {% endif %}
                 {% for item in datas -%}
                     <tr>
                         <td class="icon"><img src="{{ link_to_icons }}/{{ item.icon }}"></td>
@@ -95,24 +84,20 @@
                         <td class="date">{{ item.date }}</td>
                         <td class="size">{{ item.size }}</td>
                         <td class="open">
-                            {% if item.open[0] %}
-                                [&nbsp;<a href="{{ item.open[0] }}">{{ item.open[1] }}</a>&nbsp;]
+                            {% if item.open_url[0] %}
+                                [&nbsp;<a href="{{ item.open_url[0] }}">{{ item.open_url[1] }}</a>&nbsp;]
                             {% else %}
                                 &nbsp;
                             {% endif %}
                         </td>
-                        <td class="description"></td>
+                        <td class="description" />
                     </tr>
-                    {% set counter = counter + 1 -%}
                 {% endfor -%}
-            {% endif %}
-        </tbody>
-    </table>
-    <hr id="bottom_hr">
-    {%- if SHOW_SERVER_INFO -%}
-        <address>
-                {{ server_info }}
-        </address>
-    {% endif %}
-</body>
+            </tbody>
+        </table>
+        <hr id="bottom_hr" />
+        {%- if SHOW_SERVER_INFO -%}
+            <address>{{ server_info }}</address>
+        {% endif %}
+    </body>
 </html>

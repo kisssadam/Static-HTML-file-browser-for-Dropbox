@@ -13,9 +13,10 @@ Requirements
 -------------------
 * Dropbox account. If you don't have one, you can register here: https://db.tt/3La8trR
 * Linux (or Windows, but I can't give you any help how to use this program under Windows)
-* Python 2.7 interpreter (only this was tested while i was developing the application, newer than 3.0 interpreters may not work)
+* Python 2.7 interpreter (3.0 or newer versions may not work)
 * The following modules must be installed:
   + jinja2
+  + unipath
 
 Installation
 ------------
@@ -30,7 +31,6 @@ Installation
 
 Contributors
 ----------------
-
 [Jabba Laci](https://github.com/jabbalaci)
 
 [Iváncza Csaba](https://github.com/icsaba)

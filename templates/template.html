@@ -56,7 +56,7 @@
         </h1>
         <table>
                 <tr>
-                    <td class="icon"><img src="{{ link_to_icons }}/blank.gif"></td>
+                    <td class="icon"><img src="{{ link_to_icons }}/blank.gif" alt="blank.gif"></td>
                     <td class="name">Name</td>
                     <td class="date">Last modified</td>
                     <td class="size">Size</td>
@@ -69,7 +69,7 @@
             <tbody>
                 {% if current_directory != root %}
                     <tr>
-                        <td class="icon"><img src="{{ link_to_icons }}/back.gif"></td>
+                        <td class="icon"><img src="{{ link_to_icons }}/back.gif" alt="back.gif"></td>
                         <td class="name"><a href="../index.html">Parent Directory</a></td>
                         <td class="date" />
                         <td class="size">-</td>
@@ -79,7 +79,7 @@
                 {% endif %}
                 {% for item in datas -%}
                     <tr>
-                        <td class="icon"><img src="{{ link_to_icons }}/{{ item.icon }}"></td>
+                        <td class="icon"><img src="{{ link_to_icons }}/{{ item.icon }}" alt="{{ item.icon }}"></td>
                         <td class="name"><a href="{{ item.url }}">{{ item.name }}</a></td>
                         <td class="date">{{ item.date }}</td>
                         <td class="size">{{ item.size }}</td>
@@ -90,7 +90,7 @@
                                 &nbsp;
                             {% endif %}
                         </td>
-                        <td class="description" />
+                        <td class="description"></td>
                     </tr>
                 {% endfor -%}
             </tbody>

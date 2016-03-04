@@ -12,7 +12,7 @@
 This script generates index.html files to every directory and subdirectory
 starting from the specified directory. Every html file consist of a table
 with the following columns:
-icon file_name last_modification_time file_size description
+icon file_name last_modification_time file_size open_url description
 
 It is designed to look like the output of apache web server.
 """

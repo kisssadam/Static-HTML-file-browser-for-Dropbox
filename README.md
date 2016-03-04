@@ -3,7 +3,7 @@ Static HTML file browser for Dropbox
 
 Screenshot about output
 ------------------
-![screenshot not available](screenshot.png)
+![screenshot not available](screenshot.png?raw=true)
 
 About the program
 ------------
